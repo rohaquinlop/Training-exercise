@@ -1,0 +1,43 @@
+type Buyer{
+  id: String!
+  name: String!
+  age: Int!
+}
+
+type Product {
+  id: String!
+  name: String!
+  price: Float!
+}
+
+type Transaction {
+  id: String!
+  buyerID: String!
+  ip: String!
+  device: String!
+}
+
+input NewBuyer {
+  id: String!
+  name: String!
+  age: Int!
+}
+
+input NewProduct {
+  id: String!
+  name: String!
+  price: Float!
+}
+
+input NewTransaction {
+  id: String!
+  buyerID: String!
+  ip: String!
+  device: String!
+}
+
+type Mutation{
+  createBuyer(input: NewBuyer!): Buyer!
+  createProduct(input: NewProduct!): Product!
+  createTransaction(input: NewTransaction!): Transaction!
+}
