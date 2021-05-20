@@ -27,7 +27,7 @@ func main() {
 	//http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	frontDir := http.Dir("../frontend")
 	http.Handle("/", http.FileServer(frontDir))
-	http.Handle("/query", srv)
+	http.Handle("/graphql", srv)
 
 	log.Printf("connect to http://localhost:%s/", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
