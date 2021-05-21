@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"context"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -88,13 +90,51 @@ func loadBuyers() {
 	}
 }
 
+func loadProducts() {
+	csvFile, _ := os.Open("products.csv")
+	reader := csv.NewReader(bufio.NewReader(csvFile))
+	reader.Comma = '\''
+
+	client := graphql.NewClient("http://localhost:8080/graphql")
+
+	for {
+		line, err := reader.Read()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			log.Fatal(err)
+		}
+
+		req := graphql.NewRequest(fmt.Sprintf(`
+		mutation createProduct{
+			createProduct(input: {id: "%s", name: "%s", price: %s}){
+					name
+					price
+			}
+		}
+		`, line[0], line[1], line[2]))
+
+		req.Header.Set("Cache-Control", "no-cache")
+
+		ctx := context.Background()
+		var respData model.Buyer
+
+		err = client.Run(ctx, req, &respData)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+	}
+}
+
 func main() {
 	//Downloading files
 	actualDate := getActualDateTime("")
 
 	buyersFile := fmt.Sprintf("https://kqxty15mpg.execute-api.us-east-1.amazonaws.com/buyers?date=%s", actualDate)
 	productsFile := fmt.Sprintf("https://kqxty15mpg.execute-api.us-east-1.amazonaws.com/products?date=%s", actualDate)
-	//transactionsfile := fmt.Sprintf("https://kqxty15mpg.execute-api.us-east-1.amazonaws.com/transactions?date=%s", actualDate)
+	transactionsfile := fmt.Sprintf("https://kqxty15mpg.execute-api.us-east-1.amazonaws.com/transactions?date=%s", actualDate)
 
 	err := downloadFile("buyers.json", buyersFile)
 	if err != nil {
@@ -108,14 +148,14 @@ func main() {
 	}
 	log.Printf("Downloaded products.csv")
 
-	/*
-		err = downloadFile("transactions", transactionsfile)
-		if err != nil {
-			log.Printf("Error downloading transactions file")
-		}
-		log.Printf("Downloaded transactions")
-	*/
+	err = downloadFile("transactions", transactionsfile)
+	if err != nil {
+		log.Printf("Error downloading transactions file")
+	}
+	log.Printf("Downloaded transactions")
+
 	//Load data from files
 	loadBuyers()
+	loadProducts()
 
 }
