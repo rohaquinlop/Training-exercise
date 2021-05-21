@@ -8,6 +8,7 @@ require (
 	github.com/go-chi/chi/v5 v5.0.3
 	github.com/graphql-go/graphql v0.7.9 // indirect
 	github.com/graphql-go/handler v0.2.3 // indirect
+	github.com/machinebox/graphql v0.2.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/vektah/gqlparser/v2 v2.1.0 // indirect
 	golang.org/x/net v0.0.0-20210510120150-4163338589ed // indirect
