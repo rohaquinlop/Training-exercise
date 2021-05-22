@@ -11,6 +11,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/machinebox/graphql"
@@ -128,6 +130,63 @@ func loadProducts() {
 	}
 }
 
+func loadTransactions() {
+	_, err := exec.Command("/bin/sh", "./makeStandard.sh").Output()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	csvFile, _ := os.Open("./transactions.csv")
+
+	reader := csv.NewReader(bufio.NewReader(csvFile))
+
+	reader.Comma = ';'
+	client := graphql.NewClient("http://localhost:8080/graphql")
+	for {
+		line, err := reader.Read()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			log.Fatal(err)
+		}
+
+		line[4] = strings.Replace(line[4], "(", "", -1)
+		line[4] = strings.Replace(line[4], ")", "", -1)
+
+		tmp := strings.Split(line[4], ",")
+		productIds := "["
+
+		for i, productId := range tmp {
+			productIds = productIds + fmt.Sprintf("\"%s\"", productId)
+			if i < len(tmp)-1 {
+				productIds = productIds + ","
+			}
+		}
+		productIds = productIds + "]"
+
+		req := graphql.NewRequest(fmt.Sprintf(`
+		mutation createTransaction{
+			createTransaction(input: {id: "%s", buyerId: "%s", ip: "%s", device: "%s", productIds: %s}){
+					id
+					ip
+			}
+		}
+		`, line[0], line[1], line[2], line[3], productIds))
+
+		req.Header.Set("Cache-Control", "no-cache")
+
+		ctx := context.Background()
+		var respData model.Buyer
+
+		err = client.Run(ctx, req, &respData)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
 func main() {
 	//Downloading files
 	actualDate := getActualDateTime("")
@@ -157,5 +216,6 @@ func main() {
 	//Load data from files
 	loadBuyers()
 	loadProducts()
+	loadTransactions()
 
 }

@@ -15,6 +15,7 @@ type Transaction {
   buyerID: String!
   ip: String!
   device: String!
+  productIds: [String!]!
 }
 
 input NewBuyer {
@@ -34,6 +35,7 @@ input NewTransaction {
   buyerID: String!
   ip: String!
   device: String!
+  productIds: [String!]!
 }
 
 type Mutation{
