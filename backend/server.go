@@ -26,13 +26,24 @@ func main() {
 
 	//http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 
-	//Frontend files
-	rootDir := http.Dir("../frontend/")
-	http.Handle("/", http.FileServer(rootDir))
+	FileServer(r)
 
 	//graphql server
 	http.Handle("/graphql", srv)
 
 	log.Printf("connect to http://localhost:%s/home", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, r))
+}
+
+func FileServer(router *chi.Mux) {
+	root := "../frontend/"
+	fs := http.FileServer(http.Dir(root))
+
+	router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
+		if _, err := os.Stat(root + r.RequestURI); os.IsNotExist(err) {
+			http.StripPrefix(r.RequestURI, fs).ServeHTTP(w, r)
+		} else {
+			fs.ServeHTTP(w, r)
+		}
+	})
 }
