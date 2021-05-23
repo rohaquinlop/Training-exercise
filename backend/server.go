@@ -108,6 +108,7 @@ func showAllBuyers(w http.ResponseWriter, r *http.Request) {
 }
 
 func showInfoBuyer(w http.ResponseWriter, r *http.Request) {
+	//Isn't complete, query isn't perfect
 	userID := chi.URLParam(r, "id")
 	log.Println(userID)
 	//http://localhost:8080/graphql?query=query+findBuyer($id: String!){buyerId(id:$id){id name age}}&variables={"id" : "705d7d9b"}
