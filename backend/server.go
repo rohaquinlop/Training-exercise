@@ -100,7 +100,7 @@ func showAllBuyers(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	out, _ := json.Marshal(body)
+	out, _ := json.Marshal(raw)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(out)
