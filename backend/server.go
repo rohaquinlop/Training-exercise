@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -32,8 +34,13 @@ func main() {
 	FileServer(r)
 
 	r.Route("/load", func(r chi.Router) {
-		r.With(paginate).Post("/", loadAllData) //Post /load
-		r.With(paginate).Post("/{date}", loadDateData)
+		r.Post("/", loadAllData) //loadData endpoint
+		r.Post("/{date}", loadDateData)
+	})
+
+	r.Route("/buyers", func(r chi.Router) {
+		r.Get("/", showAllBuyers) //Buyers endpoint
+		r.Get("/{id}", showInfoBuyer)
 	})
 
 	//graphql server
@@ -73,12 +80,32 @@ func loadDateData(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// paginate is a stub, but very possible to implement middleware logic
-// to handle the request params for handling a paginated request.
-func paginate(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// just a stub.. some ideas are to look at URL query params for something like
-		// the page number, or the limit, and send a query cursor down the chain
-		next.ServeHTTP(w, r)
-	})
+func showAllBuyers(w http.ResponseWriter, r *http.Request) {
+	resp, err := http.Get("http://localhost:8080/graphql?query={buyers{id%20name%20age}}")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var raw map[string]interface{}
+
+	err = json.Unmarshal(body, &raw)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	out, _ := json.Marshal(body)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(out)
+}
+
+func showInfoBuyer(w http.ResponseWriter, r *http.Request) {
+
 }
