@@ -22,6 +22,9 @@ type Query {
   buyers: [Buyer!]!
   products: [Product!]!
   transactions: [Transaction!]!
+  buyerId(id: String!): Buyer!
+  buyerTransactions(id: String!): [Transaction!]!
+  productId(id: String!): Product!
 }
 
 input NewBuyer {

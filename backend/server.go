@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -81,7 +82,7 @@ func loadDateData(w http.ResponseWriter, r *http.Request) {
 }
 
 func showAllBuyers(w http.ResponseWriter, r *http.Request) {
-	resp, err := http.Get("http://localhost:8080/graphql?query={buyers{id%20name%20age}}")
+	resp, err := http.Get("http://localhost:8080/graphql?query=query+showBuyers{buyers{id%20name%20age}}")
 
 	if err != nil {
 		log.Fatal(err)
@@ -107,5 +108,31 @@ func showAllBuyers(w http.ResponseWriter, r *http.Request) {
 }
 
 func showInfoBuyer(w http.ResponseWriter, r *http.Request) {
+	userID := chi.URLParam(r, "id")
+	log.Println(userID)
+	//http://localhost:8080/graphql?query=query+findBuyer($id: String!){buyerId(id:$id){id name age}}&variables={"id" : "705d7d9b"}
+	var getURL = fmt.Sprintf(`http://localhost:8080/graphql?query={buyerId(id:"%s"){id,name,age},buyerTransactions(id:"%s"){id,ip}}`, string(userID), string(userID))
+	resp, err := http.Get(getURL)
 
+	if err != nil {
+		log.Fatal("resp error: %v", err)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var raw map[string]interface{}
+
+	err = json.Unmarshal(body, &raw)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	out, _ := json.Marshal(raw)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(out)
 }

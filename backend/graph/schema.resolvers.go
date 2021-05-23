@@ -54,6 +54,49 @@ func (r *queryResolver) Transactions(ctx context.Context) ([]*model.Transaction,
 	return r.transactions, nil
 }
 
+func (r *queryResolver) BuyerID(ctx context.Context, id string) (*model.Buyer, error) {
+	for _, buyer := range r.buyers {
+		if buyer.ID == id {
+			return buyer, nil
+		}
+	}
+
+	buyer := &model.Buyer{
+		ID:   "",
+		Name: "",
+		Age:  -1,
+	}
+
+	return buyer, nil
+}
+
+func (r *queryResolver) BuyerTransactions(ctx context.Context, id string) ([]*model.Transaction, error) {
+	var lst []*model.Transaction
+	for _, transaction := range r.transactions {
+		if transaction.BuyerID == id {
+			lst = append(lst, transaction)
+		}
+	}
+
+	return lst, nil
+}
+
+func (r *queryResolver) ProductID(ctx context.Context, id string) (*model.Product, error) {
+	for _, product := range r.products {
+		if product.ID == id {
+			return product, nil
+		}
+	}
+
+	product := &model.Product{
+		ID:    "",
+		Name:  "",
+		Price: -1,
+	}
+
+	return product, nil
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
