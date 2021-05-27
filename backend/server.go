@@ -101,7 +101,7 @@ func showAllBuyers(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	out, _ := json.Marshal(raw)
+	out, _ := json.Marshal(raw["data"].(map[string]interface{})["buyers"])
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(out)
@@ -112,7 +112,7 @@ func showInfoBuyer(w http.ResponseWriter, r *http.Request) {
 	userID := chi.URLParam(r, "id")
 	log.Println(userID)
 	//http://localhost:8080/graphql?query=query+findBuyer($id: String!){buyerId(id:$id){id name age}}&variables={"id" : "705d7d9b"}
-	var getURL = fmt.Sprintf(`http://localhost:8080/graphql?query={buyerId(id:"%s"){id,name,age},buyerTransactions(id:"%s"){id,ip}}`, string(userID), string(userID))
+	var getURL = fmt.Sprintf(`http://localhost:8080/graphql?query={consultBuyer(id:"%s"){boughtProducts{id,name,price},buyersSameIP{id,name,age},recommendedProducts{id,name,price}}}`, string(userID))
 	resp, err := http.Get(getURL)
 
 	if err != nil {
@@ -132,7 +132,7 @@ func showInfoBuyer(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	out, _ := json.Marshal(raw)
+	out, _ := json.Marshal(raw["data"].(map[string]interface{})["consultBuyer"])
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(out)

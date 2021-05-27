@@ -49,6 +49,13 @@ type ComplexityRoot struct {
 		Name func(childComplexity int) int
 	}
 
+	BuyerConsult struct {
+		BoughtProducts      func(childComplexity int) int
+		BuyersSameIP        func(childComplexity int) int
+		ID                  func(childComplexity int) int
+		RecommendedProducts func(childComplexity int) int
+	}
+
 	Mutation struct {
 		CreateBuyer       func(childComplexity int, input model.NewBuyer) int
 		CreateProduct     func(childComplexity int, input model.NewProduct) int
@@ -65,6 +72,7 @@ type ComplexityRoot struct {
 		BuyerID           func(childComplexity int, id string) int
 		BuyerTransactions func(childComplexity int, id string) int
 		Buyers            func(childComplexity int) int
+		ConsultBuyer      func(childComplexity int, id string) int
 		ProductID         func(childComplexity int, id string) int
 		Products          func(childComplexity int) int
 		Transactions      func(childComplexity int) int
@@ -91,6 +99,7 @@ type QueryResolver interface {
 	BuyerID(ctx context.Context, id string) (*model.Buyer, error)
 	BuyerTransactions(ctx context.Context, id string) ([]*model.Transaction, error)
 	ProductID(ctx context.Context, id string) (*model.Product, error)
+	ConsultBuyer(ctx context.Context, id string) (*model.BuyerConsult, error)
 }
 
 type executableSchema struct {
@@ -128,6 +137,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Buyer.Name(childComplexity), true
+
+	case "BuyerConsult.boughtProducts":
+		if e.complexity.BuyerConsult.BoughtProducts == nil {
+			break
+		}
+
+		return e.complexity.BuyerConsult.BoughtProducts(childComplexity), true
+
+	case "BuyerConsult.buyersSameIP":
+		if e.complexity.BuyerConsult.BuyersSameIP == nil {
+			break
+		}
+
+		return e.complexity.BuyerConsult.BuyersSameIP(childComplexity), true
+
+	case "BuyerConsult.id":
+		if e.complexity.BuyerConsult.ID == nil {
+			break
+		}
+
+		return e.complexity.BuyerConsult.ID(childComplexity), true
+
+	case "BuyerConsult.recommendedProducts":
+		if e.complexity.BuyerConsult.RecommendedProducts == nil {
+			break
+		}
+
+		return e.complexity.BuyerConsult.RecommendedProducts(childComplexity), true
 
 	case "Mutation.createBuyer":
 		if e.complexity.Mutation.CreateBuyer == nil {
@@ -216,6 +253,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Buyers(childComplexity), true
+
+	case "Query.consultBuyer":
+		if e.complexity.Query.ConsultBuyer == nil {
+			break
+		}
+
+		args, err := ec.field_Query_consultBuyer_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ConsultBuyer(childComplexity, args["id"].(string)), true
 
 	case "Query.productId":
 		if e.complexity.Query.ProductID == nil {
@@ -362,6 +411,13 @@ type Transaction {
   productIds: [String!]!
 }
 
+type BuyerConsult{
+  id: ID!
+  boughtProducts: [Product!]!
+  buyersSameIP: [Buyer!]!
+  recommendedProducts: [Product!]!
+}
+
 type Query {
   buyers: [Buyer!]!
   products: [Product!]!
@@ -369,6 +425,7 @@ type Query {
   buyerId(id: String!): Buyer!
   buyerTransactions(id: String!): [Transaction!]!
   productId(id: String!): Product!
+  consultBuyer(id: String!) : BuyerConsult!
 }
 
 input NewBuyer {
@@ -479,6 +536,21 @@ func (ec *executionContext) field_Query_buyerId_args(ctx context.Context, rawArg
 }
 
 func (ec *executionContext) field_Query_buyerTransactions_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_consultBuyer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -649,6 +721,146 @@ func (ec *executionContext) _Buyer_age(ctx context.Context, field graphql.Collec
 	res := resTmp.(int)
 	fc.Result = res
 	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _BuyerConsult_id(ctx context.Context, field graphql.CollectedField, obj *model.BuyerConsult) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "BuyerConsult",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _BuyerConsult_boughtProducts(ctx context.Context, field graphql.CollectedField, obj *model.BuyerConsult) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "BuyerConsult",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.BoughtProducts, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Product)
+	fc.Result = res
+	return ec.marshalNProduct2ᚕᚖgithubᚗcomᚋrohaquinlopᚋTraininᚑexerciseᚋbackendᚋgraphᚋmodelᚐProductᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _BuyerConsult_buyersSameIP(ctx context.Context, field graphql.CollectedField, obj *model.BuyerConsult) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "BuyerConsult",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.BuyersSameIP, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Buyer)
+	fc.Result = res
+	return ec.marshalNBuyer2ᚕᚖgithubᚗcomᚋrohaquinlopᚋTraininᚑexerciseᚋbackendᚋgraphᚋmodelᚐBuyerᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _BuyerConsult_recommendedProducts(ctx context.Context, field graphql.CollectedField, obj *model.BuyerConsult) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "BuyerConsult",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RecommendedProducts, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Product)
+	fc.Result = res
+	return ec.marshalNProduct2ᚕᚖgithubᚗcomᚋrohaquinlopᚋTraininᚑexerciseᚋbackendᚋgraphᚋmodelᚐProductᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createBuyer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1111,6 +1323,48 @@ func (ec *executionContext) _Query_productId(ctx context.Context, field graphql.
 	res := resTmp.(*model.Product)
 	fc.Result = res
 	return ec.marshalNProduct2ᚖgithubᚗcomᚋrohaquinlopᚋTraininᚑexerciseᚋbackendᚋgraphᚋmodelᚐProduct(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_consultBuyer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_consultBuyer_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().ConsultBuyer(rctx, args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.BuyerConsult)
+	fc.Result = res
+	return ec.marshalNBuyerConsult2ᚖgithubᚗcomᚋrohaquinlopᚋTraininᚑexerciseᚋbackendᚋgraphᚋmodelᚐBuyerConsult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2615,6 +2869,48 @@ func (ec *executionContext) _Buyer(ctx context.Context, sel ast.SelectionSet, ob
 	return out
 }
 
+var buyerConsultImplementors = []string{"BuyerConsult"}
+
+func (ec *executionContext) _BuyerConsult(ctx context.Context, sel ast.SelectionSet, obj *model.BuyerConsult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, buyerConsultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("BuyerConsult")
+		case "id":
+			out.Values[i] = ec._BuyerConsult_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "boughtProducts":
+			out.Values[i] = ec._BuyerConsult_boughtProducts(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "buyersSameIP":
+			out.Values[i] = ec._BuyerConsult_buyersSameIP(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "recommendedProducts":
+			out.Values[i] = ec._BuyerConsult_recommendedProducts(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -2787,6 +3083,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_productId(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "consultBuyer":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_consultBuyer(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -3163,6 +3473,20 @@ func (ec *executionContext) marshalNBuyer2ᚖgithubᚗcomᚋrohaquinlopᚋTraini
 		return graphql.Null
 	}
 	return ec._Buyer(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNBuyerConsult2githubᚗcomᚋrohaquinlopᚋTraininᚑexerciseᚋbackendᚋgraphᚋmodelᚐBuyerConsult(ctx context.Context, sel ast.SelectionSet, v model.BuyerConsult) graphql.Marshaler {
+	return ec._BuyerConsult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNBuyerConsult2ᚖgithubᚗcomᚋrohaquinlopᚋTraininᚑexerciseᚋbackendᚋgraphᚋmodelᚐBuyerConsult(ctx context.Context, sel ast.SelectionSet, v *model.BuyerConsult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._BuyerConsult(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {

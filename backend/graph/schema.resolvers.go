@@ -97,6 +97,61 @@ func (r *queryResolver) ProductID(ctx context.Context, id string) (*model.Produc
 	return product, nil
 }
 
+func (r *queryResolver) ConsultBuyer(ctx context.Context, id string) (*model.BuyerConsult, error) {
+	var boughtProducts []*model.Product
+	var buyersSameIP []*model.Buyer
+	var recommendedProducts []*model.Product
+
+	//Getting all the buyer transactions
+	transactions, _ := r.BuyerTransactions(ctx, id)
+	for _, transaction := range transactions {
+		//Getting the bought products
+		for _, productId := range transaction.ProductIds {
+
+			product, _ := r.ProductID(ctx, productId)
+			if product.Price != -1 {
+				boughtProducts = append(boughtProducts, product)
+			}
+		}
+
+		//Getting the buyers using the same IP
+		for _, t := range r.transactions {
+			if transaction.IP == t.IP && id != t.BuyerID {
+				buyer, _ := r.BuyerID(ctx, t.BuyerID)
+				buyersSameIP = append(buyersSameIP, buyer)
+			}
+		}
+	}
+
+	cntRecommendations := 0
+	for _, product := range r.products {
+		if cntRecommendations >= 5 {
+			break
+		}
+		flag := 0
+		for _, bProduct := range boughtProducts {
+			if bProduct.ID == product.ID {
+				flag = 1
+				break
+			}
+		}
+
+		if flag == 0 {
+			recommendedProducts = append(recommendedProducts, product)
+			cntRecommendations++
+		}
+	}
+
+	buyerConsult := &model.BuyerConsult{
+		ID:                  id,
+		BoughtProducts:      boughtProducts,
+		BuyersSameIP:        buyersSameIP,
+		RecommendedProducts: recommendedProducts,
+	}
+
+	return buyerConsult, nil
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 

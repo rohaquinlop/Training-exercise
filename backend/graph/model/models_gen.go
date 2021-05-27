@@ -8,6 +8,13 @@ type Buyer struct {
 	Age  int    `json:"age"`
 }
 
+type BuyerConsult struct {
+	ID                  string     `json:"id"`
+	BoughtProducts      []*Product `json:"boughtProducts"`
+	BuyersSameIP        []*Buyer   `json:"buyersSameIP"`
+	RecommendedProducts []*Product `json:"recommendedProducts"`
+}
+
 type NewBuyer struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
