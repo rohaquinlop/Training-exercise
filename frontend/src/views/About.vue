@@ -4,7 +4,7 @@
 
     <div v-if="buyers">
       <ul>
-      <li v-for="buyer in buyers" :key="buyer.name">
+      <li v-for="buyer in buyers" :key="buyer.id">
         {{buyer.id}} {{buyer.name}}
       </li>
     </ul>
