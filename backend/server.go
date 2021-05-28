@@ -18,7 +18,7 @@ import (
 	"github.com/rohaquinlop/Trainin-exercise/backend/graph/generated"
 )
 
-const defaultPort = "8080"
+const defaultPort = "5656"
 
 func main() {
 	r := chi.NewRouter()
@@ -32,7 +32,7 @@ func main() {
 
 	//http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 
-	FileServer(r)
+	//FileServer(r)
 
 	r.Route("/load", func(r chi.Router) {
 		r.Post("/", loadAllData) //loadData endpoint
@@ -47,7 +47,7 @@ func main() {
 	//graphql server
 	r.Handle("/graphql", srv)
 
-	log.Printf("connect to http://localhost:%s/home", port)
+	log.Printf("connect to http://localhost:%s", port)
 	log.Fatal(http.ListenAndServe(":"+port, r))
 }
 
@@ -82,7 +82,7 @@ func loadDateData(w http.ResponseWriter, r *http.Request) {
 }
 
 func showAllBuyers(w http.ResponseWriter, r *http.Request) {
-	resp, err := http.Get("http://localhost:8080/graphql?query=query+showBuyers{buyers{id%20name%20age}}")
+	resp, err := http.Get("http://localhost:5656/graphql?query=query+showBuyers{buyers{id%20name%20age}}")
 
 	if err != nil {
 		log.Fatal(err)
@@ -104,6 +104,8 @@ func showAllBuyers(w http.ResponseWriter, r *http.Request) {
 	out, _ := json.Marshal(raw["data"].(map[string]interface{})["buyers"])
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.Write(out)
 }
 
@@ -111,8 +113,8 @@ func showInfoBuyer(w http.ResponseWriter, r *http.Request) {
 	//Isn't complete, query isn't perfect
 	userID := chi.URLParam(r, "id")
 	log.Println(userID)
-	//http://localhost:8080/graphql?query=query+findBuyer($id: String!){buyerId(id:$id){id name age}}&variables={"id" : "705d7d9b"}
-	var getURL = fmt.Sprintf(`http://localhost:8080/graphql?query={consultBuyer(id:"%s"){boughtProducts{id,name,price},buyersSameIP{id,name,age},recommendedProducts{id,name,price}}}`, string(userID))
+	//http://localhost:5656/graphql?query=query+findBuyer($id: String!){buyerId(id:$id){id name age}}&variables={"id" : "705d7d9b"}
+	var getURL = fmt.Sprintf(`http://localhost:5656/graphql?query={consultBuyer(id:"%s"){boughtProducts{id,name,price},buyersSameIP{id,name,age},recommendedProducts{id,name,price}}}`, string(userID))
 	resp, err := http.Get(getURL)
 
 	if err != nil {
@@ -135,5 +137,7 @@ func showInfoBuyer(w http.ResponseWriter, r *http.Request) {
 	out, _ := json.Marshal(raw["data"].(map[string]interface{})["consultBuyer"])
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.Write(out)
 }

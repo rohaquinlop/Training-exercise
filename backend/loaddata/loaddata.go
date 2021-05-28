@@ -66,7 +66,7 @@ func loadBuyers() {
 		log.Printf("Error loading buyers json file: %v", err)
 	}
 
-	client := graphql.NewClient("http://localhost:8080/graphql")
+	client := graphql.NewClient("http://localhost:5656/graphql")
 
 	for _, buyer := range data {
 		//make request
@@ -94,7 +94,7 @@ func loadProducts() {
 	reader := csv.NewReader(bufio.NewReader(csvFile))
 	reader.Comma = '\''
 
-	client := graphql.NewClient("http://localhost:8080/graphql")
+	client := graphql.NewClient("http://localhost:5656/graphql")
 
 	for {
 		line, err := reader.Read()
@@ -135,7 +135,7 @@ func loadTransactions() {
 	reader := csv.NewReader(bufio.NewReader(csvFile))
 
 	reader.Comma = ';'
-	client := graphql.NewClient("http://localhost:8080/graphql")
+	client := graphql.NewClient("http://localhost:5656/graphql")
 	for {
 		line, err := reader.Read()
 		if err == io.EOF {
