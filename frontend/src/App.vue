@@ -1,11 +1,31 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
-  </div>
+  <v-app>
+
+    <b-navbar type="dark" variant="dark">
+      <b-navbar-brand tag="h1" class="mb-0">Training Exercise</b-navbar-brand>
+      <b-navbar-nav align='center'>
+        <b-nav-item to="/">Sincronizar fecha</b-nav-item>
+        <b-nav-item to="/buyers">Ver compradores</b-nav-item>
+        <b-nav-item to="/buyerinfo">Informacion de compradores</b-nav-item>
+      </b-navbar-nav>
+    </b-navbar>
+      <!-- -->
+
+    <!-- Sizes your content based upon application components -->
+    <v-main>
+
+      <!-- Provides the application the proper gutter -->
+      <v-container fluid>
+
+        <!-- If using vue-router -->
+        <router-view></router-view>
+      </v-container>
+    </v-main>
+
+    <v-footer app>
+      <!-- -->
+    </v-footer>
+  </v-app>
 </template>
 
 <style lang="scss">

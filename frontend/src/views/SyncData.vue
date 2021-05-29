@@ -1,6 +1,6 @@
 <template>
-  <div class="home">
-    <h1>Home</h1>
+  <div class="syncdata">
+    <h1>Sincronizar datos</h1>
   </div>
 </template>
 
@@ -9,6 +9,6 @@
 // import HelloWorld from '@/components/HelloWorld.vue'
 
 export default {
-  name: 'Home',
+  name: 'SyncData',
 }
 </script>

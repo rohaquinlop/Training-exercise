@@ -32,8 +32,6 @@ func main() {
 
 	//http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 
-	//FileServer(r)
-
 	r.Route("/load", func(r chi.Router) {
 		r.Post("/", loadAllData) //loadData endpoint
 		r.Post("/{date}", loadDateData)
@@ -49,19 +47,6 @@ func main() {
 
 	log.Printf("connect to http://localhost:%s", port)
 	log.Fatal(http.ListenAndServe(":"+port, r))
-}
-
-func FileServer(router *chi.Mux) {
-	root := "../frontend/"
-	fs := http.FileServer(http.Dir(root))
-
-	router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
-		if _, err := os.Stat(root + r.RequestURI); os.IsNotExist(err) {
-			http.StripPrefix(r.RequestURI, fs).ServeHTTP(w, r)
-		} else {
-			fs.ServeHTTP(w, r)
-		}
-	})
 }
 
 func loadAllData(w http.ResponseWriter, r *http.Request) {
