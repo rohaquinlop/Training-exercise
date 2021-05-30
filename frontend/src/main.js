@@ -17,9 +17,4 @@ new Vue({
   vuetify,
   router,
   render: h => h(App),
-  /*
-  created() {
-    fetch('http://localhost:5656/load', {method: 'POST', mode:'no-cors'})
-  }
-  */
 }).$mount('#app')
