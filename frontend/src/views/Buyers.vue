@@ -86,6 +86,7 @@ export default {
   padding: 10px;
   align-items: center;
   border-collapse: collapse;
+  width: 80%;
 }
 
 .buyers-tr, .buyers-th{
