@@ -20,6 +20,8 @@ import (
 
 const defaultPort = "5656"
 
+var datesUsed []string
+
 func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -57,12 +59,27 @@ func loadAllData(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func loadDateData(w http.ResponseWriter, r *http.Request) {
-	loaddata.LoadDataDB(chi.URLParam(r, "date"))
+func contains(date string) bool {
+	for _, v := range datesUsed {
+		if v == date {
+			return true
+		}
+	}
 
-	_, err := exec.Command("/bin/sh", "../removeFiles.sh").Output()
-	if err != nil {
-		log.Fatal(err)
+	return false
+}
+
+func loadDateData(w http.ResponseWriter, r *http.Request) {
+	str := chi.URLParam(r, "date")
+
+	if !contains(str) {
+		loaddata.LoadDataDB(str)
+		datesUsed = append(datesUsed, str)
+
+		_, err := exec.Command("/bin/sh", "../removeFiles.sh").Output()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
