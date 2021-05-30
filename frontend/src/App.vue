@@ -6,7 +6,7 @@
       <b-navbar-nav align='center'>
         <b-nav-item to="/">Sincronizar fecha</b-nav-item>
         <b-nav-item to="/buyers">Ver compradores</b-nav-item>
-        <b-nav-item to="/buyerinfo">Informacion de compradores</b-nav-item>
+        <b-nav-item to="/buyerinfo">Información de compradores</b-nav-item>
       </b-navbar-nav>
     </b-navbar>
       <!-- -->
